@@ -145,7 +145,7 @@ def main():
 
     # Build command according to signing option
     if sign_option == 'SIGN_ON_APPDOME':
-        keystore_alias = '--keystore_alias "{args.keystore_alias}"' if args.keystore_alias != "None" else ""
+        keystore_alias = f'--keystore_alias "{args.keystore_alias}"' if args.keystore_alias != "None" else ""
         keystore_key_pass = f"--key_pass {args.keystore_key_pass}" if args.keystore_key_pass != "None" else ""
         google_play_signing = f"--google_play_signing" if args.google_play_signing != "false" else ""
         signing_fingerprint = f"--signing_fingerprint {args.signing_fingerprint}" if args.signing_fingerprint != "None" else ""
