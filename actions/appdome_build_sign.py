@@ -145,21 +145,53 @@ def main():
 
     # Build command according to signing option
     if sign_option == 'SIGN_ON_APPDOME':
-        keystore_alias = f'--keystore_alias "{args.keystore_alias}"' if args.keystore_alias != "None" else ""
-        keystore_key_pass = f"--key_pass {args.keystore_key_pass}" if args.keystore_key_pass != "None" else ""
-        google_play_signing = f"--google_play_signing" if args.google_play_signing != "false" else ""
-        signing_fingerprint = f"--signing_fingerprint {args.signing_fingerprint}" if args.signing_fingerprint != "None" else ""
-
-        cmd = f"appdome_virtual_env/bin/python3 appdome/appdome-api-python/appdome_api.py -key {appdome_api_key} --app {app_file} " \
-              f"--sign_on_appdome -fs {fusion_set} {team_id} --keystore {keystore_file[0]} " \
-              f"--keystore_pass {keystore_pass} --output {output_path}/{output_file_name}{app_ext} " \
-              f"--certificate_output {output_path}/certificate.pdf {keystore_alias} {keystore_key_pass} " \
-              f"{provision_profiles} {entitlements}{build_with_logs}{sign_second_output}{build_to_test} " \
-              f"--deobfuscation_script_output {output_path}/deobfuscation_scripts.zip {google_play_signing} " \
-              f"{signing_fingerprint} {firebase_app_id} {datadog_api_key} {dynamic_certificates}"
-
-        print(f"running command: {cmd}", flush=True)
-        subprocess.run(cmd.split(), env=new_env, check=True, text=True)
+        cmd = [
+            "appdome_virtual_env/bin/python3",
+            "appdome/appdome-api-python/appdome_api.py",
+            "-key", appdome_api_key,
+            "--app", app_file,
+            "--sign_on_appdome",
+            "-fs", fusion_set,
+        ]
+    
+        if team_id:
+            cmd += ["--team_id", team_id]
+        if keystore_file:
+            cmd += ["--keystore", keystore_file[0]]
+        if keystore_pass:
+            cmd += ["--keystore_pass", keystore_pass]
+        cmd += [
+            "--output", f"{output_path}/{output_file_name}{app_ext}",
+            "--certificate_output", f"{output_path}/certificate.pdf"
+        ]
+        if args.keystore_alias != "None":
+            cmd += ["--keystore_alias", args.keystore_alias]
+        if args.keystore_key_pass != "None":
+            cmd += ["--key_pass", args.keystore_key_pass]
+        if provision_profiles:
+            cmd += provision_profiles.split()
+        if entitlements:
+            cmd += entitlements.split()
+        if build_with_logs:
+            cmd += build_with_logs.split()
+        if sign_second_output:
+            cmd += sign_second_output.split()
+        if build_to_test:
+            cmd += build_to_test.split()
+        cmd += ["--deobfuscation_script_output", f"{output_path}/deobfuscation_scripts.zip"]
+        if args.google_play_signing != "false":
+            cmd += ["--google_play_signing"]
+        if args.signing_fingerprint != "None":
+            cmd += ["--signing_fingerprint", args.signing_fingerprint]
+        if firebase_app_id:
+            cmd += firebase_app_id.split()
+        if datadog_api_key:
+            cmd += datadog_api_key.split()
+        if dynamic_certificates:
+            cmd += dynamic_certificates.split()
+    
+        print(f"running command: {' '.join(cmd)}", flush=True)
+        subprocess.run(cmd, env=new_env, check=True, text=True)
 
     elif sign_option == 'PRIVATE_SIGNING':
         google_play_signing = f"--google_play_signing" if args.google_play_signing != "false" else ""
